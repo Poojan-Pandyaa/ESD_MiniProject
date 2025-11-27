@@ -76,10 +76,10 @@ function PlacementHistory() {
         const orgs = new Set();
 
         data.forEach(s => {
-            if (s[5]) years.add(s[5]); // Year
-            if (s[2]) domains.add(s[2]); // Domain
-            if (s[3]) orgs.add(s[3]); // Placement Org
-            if (s[4]) orgs.add(s[4]); // Alumni Org
+            if (s.graduation_year) years.add(s.graduation_year);
+            if (s.program) domains.add(s.program);
+            if (s.placement_org) orgs.add(s.placement_org);
+            if (s.alumni_org) orgs.add(s.alumni_org);
         });
 
         setOptions({
@@ -97,40 +97,40 @@ function PlacementHistory() {
         if (searchKeyword.trim()) {
             const lowerKey = searchKeyword.toLowerCase();
             result = result.filter(s =>
-                (s[0] + ' ' + s[1]).toLowerCase().includes(lowerKey) || // Name
-                (s[3] || '').toLowerCase().includes(lowerKey) || // Org
-                (s[2] || '').toLowerCase().includes(lowerKey) // Domain
+                (s.first_name + ' ' + s.last_name).toLowerCase().includes(lowerKey) ||
+                (s.placement_org || '').toLowerCase().includes(lowerKey) ||
+                (s.program || '').toLowerCase().includes(lowerKey)
             );
         }
 
         // Dropdown Filters
         if (filters.status !== 'all') {
             result = result.filter(s =>
-                filters.status === 'placed' ? s[7] === 'Placed' : s[7] === 'Unplaced'
+                filters.status === 'placed' ? s.placement_status === 'Placed' : s.placement_status === 'Unplaced'
             );
         }
         if (filters.year !== 'all') {
-            result = result.filter(s => String(s[5]) === String(filters.year));
+            result = result.filter(s => String(s.graduation_year) === String(filters.year));
         }
         if (filters.domain !== 'all') {
-            result = result.filter(s => s[2] === filters.domain);
+            result = result.filter(s => s.program === filters.domain);
         }
         if (filters.org !== 'all') {
-            result = result.filter(s => s[3] === filters.org || s[4] === filters.org);
+            result = result.filter(s => s.placement_org === filters.org || s.alumni_org === filters.org);
         }
 
         // Filter out unplaced students if sorting by CTC
         if (sortOrder.includes('ctc')) {
-            result = result.filter(s => s[7] === 'Placed');
+            result = result.filter(s => s.placement_status === 'Placed');
         }
 
         // Sorting
         result.sort((a, b) => {
-            if (sortOrder === 'ctc-desc') return (parseFloat(b[8]) || 0) - (parseFloat(a[8]) || 0);
-            if (sortOrder === 'ctc-asc') return (parseFloat(a[8]) || 0) - (parseFloat(b[8]) || 0);
+            if (sortOrder === 'ctc-desc') return (parseFloat(b.ctc) || 0) - (parseFloat(a.ctc) || 0);
+            if (sortOrder === 'ctc-asc') return (parseFloat(a.ctc) || 0) - (parseFloat(b.ctc) || 0);
 
-            const nameA = (a[0] + ' ' + a[1]).toLowerCase();
-            const nameB = (b[0] + ' ' + b[1]).toLowerCase();
+            const nameA = (a.first_name + ' ' + a.last_name).toLowerCase();
+            const nameB = (b.first_name + ' ' + b.last_name).toLowerCase();
             return sortOrder === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
         });
 
@@ -144,11 +144,11 @@ function PlacementHistory() {
 
 
     const handleRowClick = (student) => {
-        if (student[3]) { // Only if placed/has org
+        if (student.placement_org) { // Only if placed/has org
             setSelectedStudent({
-                name: `${student[0]} ${student[1]}`,
-                org: student[3],
-                ctc: student[8],
+                name: `${student.first_name} ${student.last_name}`,
+                org: student.placement_org,
+                ctc: student.ctc,
                 role: 'SDE' // Placeholder or derived if available
             });
         }
@@ -172,7 +172,7 @@ function PlacementHistory() {
                         </div>
                         <div className="stat-pill success">
                             <span className="label">Placed</span>
-                            <span className="value">{allStudents.filter(s => s[7] === 'Placed').length}</span>
+                            <span className="value">{allStudents.filter(s => s.placement_status === 'Placed').length}</span>
                         </div>
                     </div>
                 )}
@@ -221,6 +221,7 @@ function PlacementHistory() {
                                     <option value="asc">Sort: Name (A-Z)</option>
                                     <option value="desc">Sort: Name (Z-A)</option>
                                     <option value="ctc-desc">Sort: CTC (High-Low)</option>
+                                    <option value="ctc-asc">Sort: CTC (Low-High)</option>
                                 </select>
                             </div>
                         </div>
@@ -240,23 +241,23 @@ function PlacementHistory() {
                                 <tbody>
                                     {displayedStudents.length > 0 ? (
                                         displayedStudents.map((s, idx) => (
-                                            <tr key={idx} onClick={() => handleRowClick(s)} className={s[3] ? 'clickable' : ''}>
+                                            <tr key={idx} onClick={() => handleRowClick(s)} className={s.placement_org ? 'clickable' : ''}>
                                                 <td className="name-cell">
-                                                    <div className="avatar">{s[0][0]}</div>
+                                                    <div className="avatar">{s.first_name[0]}</div>
                                                     <div>
-                                                        <div className="name">{s[0]} {s[1]}</div>
-                                                        <div className="sub-text">{s[6] === 'Yes' ? 'Alumni' : 'Student'}</div>
+                                                        <div className="name">{s.first_name} {s.last_name}</div>
+                                                        <div className="sub-text">{s.is_alumni === 'Yes' ? 'Alumni' : 'Student'}</div>
                                                     </div>
                                                 </td>
-                                                <td><span className="badge-domain">{s[2]}</span></td>
-                                                <td className="org-cell">{s[3] || s[4] || '-'}</td>
-                                                <td>{s[5]}</td>
+                                                <td><span className="badge-domain">{s.program}</span></td>
+                                                <td className="org-cell">{s.placement_org || s.alumni_org || '-'}</td>
+                                                <td>{s.graduation_year}</td>
                                                 <td>
-                                                    <span className={`status-dot ${s[7] === 'Placed' ? 'placed' : 'unplaced'}`}></span>
-                                                    {s[7]}
+                                                    <span className={`status-dot ${s.placement_status === 'Placed' ? 'placed' : 'unplaced'}`}></span>
+                                                    {s.placement_status}
                                                 </td>
                                                 <td className="ctc-cell">
-                                                    {s[8] && parseFloat(s[8]) > 0 ? `${s[8]} LPA` : '-'}
+                                                    {s.ctc && parseFloat(s.ctc) > 0 ? `${s.ctc} LPA` : '-'}
                                                 </td>
                                             </tr>
                                         ))
