@@ -20,53 +20,57 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig implements WebMvcConfigurer {
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
-    private final CustomOAuth2UserService customOAuth2UserService;
-    private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
+        private final JwtAuthenticationFilter jwtAuthenticationFilter;
+        private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+        private final CustomOAuth2UserService customOAuth2UserService;
+        private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
-            OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler,
-            CustomOAuth2UserService customOAuth2UserService,
-            OAuth2LoginFailureHandler oAuth2LoginFailureHandler) {
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
-        this.customOAuth2UserService = customOAuth2UserService;
-        this.oAuth2LoginFailureHandler = oAuth2LoginFailureHandler;
-    }
+        public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+                        OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler,
+                        CustomOAuth2UserService customOAuth2UserService,
+                        OAuth2LoginFailureHandler oAuth2LoginFailureHandler) {
+                this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+                this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
+                this.customOAuth2UserService = customOAuth2UserService;
+                this.oAuth2LoginFailureHandler = oAuth2LoginFailureHandler;
+        }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())
-                .cors(cors -> {
-                }) // Use CORS configuration from addCorsMappings
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/**", "/employee/", "/employee", "/oauth2/**", "/login/oauth2/**")
-                        .permitAll()
-                        .anyRequest().authenticated())
-                .oauth2Login(oauth2 -> oauth2
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOAuth2UserService))
-                        .successHandler(oAuth2LoginSuccessHandler)
-                        .failureHandler(oAuth2LoginFailureHandler))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+                http
+                                .csrf(csrf -> csrf.disable())
+                                .cors(cors -> {
+                                }) // Use CORS configuration from addCorsMappings
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers("/api/v1/auth/**", "/employee/", "/employee",
+                                                                "/oauth2/**", "/login/oauth2/**", "/v3/api-docs/**",
+                                                                "/swagger-ui/**", "/swagger-ui.html")
+                                                .permitAll()
+                                                .anyRequest().authenticated())
+                                .oauth2Login(oauth2 -> oauth2
+                                                .userInfoEndpoint(userInfo -> userInfo
+                                                                .userService(customOAuth2UserService))
+                                                .successHandler(oAuth2LoginSuccessHandler)
+                                                .failureHandler(oAuth2LoginFailureHandler))
+                                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+                return http.build();
+        }
 
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000") // React frontend origin
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-                .allowedHeaders("Authorization", "Content-Type")
-                .allowCredentials(true);
-    }
+        @Override
+        public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")
+                                .allowedOrigins("http://localhost:3000", "http://localhost:9191") // React frontend and
+                                                                                                  // Swagger UI origin
+                                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+                                .allowedHeaders("Authorization", "Content-Type")
+                                .allowCredentials(true);
+        }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
+        }
 }

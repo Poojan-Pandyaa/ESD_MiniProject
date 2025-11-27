@@ -1,6 +1,5 @@
 package com.poojan.esd_final_project.helper;
 
-import com.poojan.esd_final_project.entity.Employee;
 import com.poojan.esd_final_project.exception.EmployeeNotFoundException;
 import com.poojan.esd_final_project.service.EmployeeService;
 import jakarta.servlet.ServletException;
@@ -34,25 +33,26 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         String givenName = oAuth2User.getAttribute("given_name");
         String familyName = oAuth2User.getAttribute("family_name");
 
-        try {
-            // Only allow login for existing employees (no auto-registration)
-            Employee employee = employeeService.createOrGetOAuth2Employee(email, givenName, familyName);
-
-            // Generate JWT token for employee
-            String jwtToken = jwtHelper.generateToken(employee.getEmail(), "employee");
-
-            // Redirect to frontend with token
-            String redirectUrl = "http://localhost:3000/placement?token=" + jwtToken;
-            getRedirectStrategy().sendRedirect(request, response, redirectUrl);
-
-        } catch (EmployeeNotFoundException e) {
-            // Employee not found - treat as Guest
-            // Generate JWT token for guest
-            String jwtToken = jwtHelper.generateToken(email, "guest");
-
-            // Redirect to frontend with token
-            String redirectUrl = "http://localhost:3000/placement?token=" + jwtToken;
-            getRedirectStrategy().sendRedirect(request, response, redirectUrl);
+        String role = "student";
+        if (email != null && email.toLowerCase().startsWith("placement")) {
+            role = "placement";
         }
+
+        try {
+            // Try to get existing employee
+            employeeService.createOrGetOAuth2Employee(email, givenName, familyName);
+        } catch (EmployeeNotFoundException e) {
+            // Employee not found - that's fine, we'll just generate the token with the
+            // determined role
+            // We could optionally create a guest record here if needed
+        }
+
+        // Generate JWT token with the determined role
+        String token = jwtHelper.generateToken(email, role);
+        System.out.println("Generated JWT Token: " + token);
+
+        // Redirect to frontend with token
+        String redirectUrl = "http://localhost:3000/login?token=" + token;
+        getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
 }
