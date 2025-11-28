@@ -57,12 +57,15 @@ public class Student {
     @Column(name = "photo_path")
     private String photoPath;
 
+    @Column(name = "ctc")
+    private Double ctc;
+
     public Student() {
     }
 
     public Student(Long id, List<Alumni> alumni, List<PlacementStudent> placementStudent, String firstName,
             String lastName, String email, String rollno, int cgpa, int gradYear, double credits, String organization,
-            Domains domain, Specialisation specialisation, Placement placement, String photoPath) {
+            Domains domain, Specialisation specialisation, Placement placement, String photoPath, Double ctc) {
         this.id = id;
         this.alumni = alumni;
         this.placementStudent = placementStudent;
@@ -204,6 +207,14 @@ public class Student {
         this.photoPath = photoPath;
     }
 
+    public Double getCtc() {
+        return ctc;
+    }
+
+    public void setCtc(Double ctc) {
+        this.ctc = ctc;
+    }
+
     public static class StudentBuilder {
         private Long id;
         private List<Alumni> alumni;
@@ -219,7 +230,9 @@ public class Student {
         private Domains domain;
         private Specialisation specialisation;
         private Placement placement;
+        private Placement placement;
         private String photoPath;
+        private Double ctc;
 
         StudentBuilder() {
         }
@@ -299,9 +312,14 @@ public class Student {
             return this;
         }
 
+        public StudentBuilder ctc(Double ctc) {
+            this.ctc = ctc;
+            return this;
+        }
+
         public Student build() {
             return new Student(id, alumni, placementStudent, firstName, lastName, email, rollno, cgpa, gradYear,
-                    credits, organization, domain, specialisation, placement, photoPath);
+                    credits, organization, domain, specialisation, placement, photoPath, ctc);
         }
 
         public String toString() {
@@ -310,7 +328,7 @@ public class Student {
                     + ", email=" + this.email + ", rollno=" + this.rollno + ", cgpa=" + this.cgpa + ", gradYear="
                     + this.gradYear + ", credits=" + this.credits + ", organization=" + this.organization + ", domain="
                     + this.domain + ", specialisation=" + this.specialisation + ", placement=" + this.placement
-                    + ", photoPath=" + this.photoPath + ")";
+                    + ", photoPath=" + this.photoPath + ", ctc=" + this.ctc + ")";
         }
     }
 }

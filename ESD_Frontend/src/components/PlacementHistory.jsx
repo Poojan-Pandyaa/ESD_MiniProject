@@ -46,9 +46,9 @@ function PlacementHistory() {
         try {
             setLoading(true);
             const data = await studentService.fetchFilteredStudents('');
-            setAllStudents(data);
-            setDisplayedStudents(data);
-            extractOptions(data);
+            setAllStudents(data);//master copy, never filtered
+            setDisplayedStudents(data);//filtered copy shown to user
+            extractOptions(data);//to populate filter dropdowns
         } catch (err) {
             console.error("Fetch error:", err);
 
@@ -79,7 +79,6 @@ function PlacementHistory() {
             if (s.graduation_year) years.add(s.graduation_year);
             if (s.program) domains.add(s.program);
             if (s.placement_org) orgs.add(s.placement_org);
-            if (s.alumni_org) orgs.add(s.alumni_org);
         });
 
         setOptions({
@@ -116,12 +115,12 @@ function PlacementHistory() {
             result = result.filter(s => s.program === filters.domain);
         }
         if (filters.org !== 'all') {
-            result = result.filter(s => s.placement_org === filters.org || s.alumni_org === filters.org);
+            result = result.filter(s => s.placement_org === filters.org);
         }
 
-        // Filter out unplaced students if sorting by CTC
+        // Filter out unplaced students or students with no CTC if sorting by CTC
         if (sortOrder.includes('ctc')) {
-            result = result.filter(s => s.placement_status === 'Placed');
+            result = result.filter(s => s.placement_status === 'Placed' && s.ctc && parseFloat(s.ctc) > 0);
         }
 
         // Sorting

@@ -5,10 +5,18 @@ const BASE_URL = 'http://localhost:9191/api/v1/auth';
 export const authService = {
   login: async (email, password) => {
     try {
-      const response = await axios.post(`${BASE_URL}/login`, {
+      const response = await axios.post('http://localhost:9191/api/auth/login', {
         email,
         password,
       });
+
+      // Save token from response
+      if (response.data.token) {
+        localStorage.setItem('user', response.data.token);
+        console.log('Login successful! Token:', response.data.token);
+        console.log('Role:', response.data.role);
+      }
+
       return response.data;
     } catch (err) {
       // Extract user-friendly error message

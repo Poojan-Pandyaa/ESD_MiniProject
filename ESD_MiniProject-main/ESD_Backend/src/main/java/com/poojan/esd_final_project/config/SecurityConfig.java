@@ -1,10 +1,5 @@
 package com.poojan.esd_final_project.config;
 
-import com.poojan.esd_final_project.helper.JwtAuthenticationFilter;
-import com.poojan.esd_final_project.helper.OAuth2LoginSuccessHandler;
-import com.poojan.esd_final_project.helper.OAuth2LoginFailureHandler;
-import com.poojan.esd_final_project.service.CustomOAuth2UserService;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,6 +11,11 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import com.poojan.esd_final_project.helper.JwtAuthenticationFilter;
+import com.poojan.esd_final_project.helper.OAuth2LoginFailureHandler;
+import com.poojan.esd_final_project.helper.OAuth2LoginSuccessHandler;
+import com.poojan.esd_final_project.service.CustomOAuth2UserService;
 
 @Configuration
 @EnableWebSecurity
@@ -44,14 +44,14 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 .sessionManagement(session -> session
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers("/api/v1/auth/**", "/employee/", "/employee",
+                                                .requestMatchers("/api/v1/auth/**", "/api/auth/**", "/employee/",
+                                                                "/employee",
                                                                 "/oauth2/**", "/login/oauth2/**", "/v3/api-docs/**",
                                                                 "/swagger-ui/**", "/swagger-ui.html")
                                                 .permitAll()
                                                 .anyRequest().authenticated())
-                                .oauth2Login(oauth2 -> oauth2
-                                                .userInfoEndpoint(userInfo -> userInfo
-                                                                .userService(customOAuth2UserService))
+                                .oauth2Login(oauth2 -> oauth2.userInfoEndpoint(userInfo -> userInfo
+                                                        .userService(customOAuth2UserService))
                                                 .successHandler(oAuth2LoginSuccessHandler)
                                                 .failureHandler(oAuth2LoginFailureHandler))
                                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

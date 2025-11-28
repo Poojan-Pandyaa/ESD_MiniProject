@@ -39,8 +39,11 @@ public class EmployeeService {
     }
 
     public Employee getEmployeeByEmail(String email) {
-        return employeeRepo.findByEmail(email)
-                .orElseThrow(() -> new EmployeeNotFoundException("Employee with email " + email + " not found"));
+        java.util.List<Employee> employees = employeeRepo.findByEmail(email);
+        if (employees.isEmpty()) {
+            throw new EmployeeNotFoundException("Employee with email " + email + " not found");
+        }
+        return employees.get(0);
     }
 
     public String login(@Valid LoginRequest request) {

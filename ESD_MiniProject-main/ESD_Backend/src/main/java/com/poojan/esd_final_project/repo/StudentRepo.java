@@ -29,16 +29,18 @@ public interface StudentRepo extends JpaRepository<Student, Long> {
 
         @Query(value = "select " +
                         "s.first_name, s.last_name, d.program, " +
-                        "MAX(p.org) as placement_org, MAX(ao.org) as alumni_org, s.graduation_year, " +
+                        "COALESCE(MAX(p.org), MAX(s.org)) as placement_org, MAX(ao.org) as alumni_org, s.graduation_year, "
+                        +
                         "case " +
                         "when exists(select 1 from alumni a where s.id = a.sid) then 'Yes' " +
                         "else 'No' " +
                         "end as isAlumni, " +
                         "case " +
-                        "when exists(select 1 from placement_student ps2 where ps2.sid = s.id) then 'Placed' " +
+                        "when exists(select 1 from placement_student ps2 where ps2.sid = s.id) OR MAX(s.org) IS NOT NULL then 'Placed' "
+                        +
                         "else 'Unplaced' " +
                         "end as is_placed, " +
-                        "MAX(p.ctc) as ctc " +
+                        "COALESCE(MAX(p.ctc), MAX(s.ctc)) as ctc " +
                         "from students s join domains d " +
                         "on s.domain = d.id " +
                         "left join placement_student ps " +
@@ -54,6 +56,7 @@ public interface StudentRepo extends JpaRepository<Student, Long> {
                         "(lower(s.first_name) like concat('%',lower(:keyword),'%')) or " +
                         "(lower(s.last_name) like concat('%',lower(:keyword),'%')) or " +
                         "(lower(p.org) like concat('%',lower(:keyword),'%')) or " +
+                        "(lower(s.org) like concat('%',lower(:keyword),'%')) or " +
                         "(lower(ao.org) like concat('%',lower(:keyword),'%')) or " +
                         "(s.graduation_year = :keyword) or " +
                         "(lower(replace(d.program, '.', '')) like concat('%',lower(replace(:keyword, '.', '')),'%'))) "
