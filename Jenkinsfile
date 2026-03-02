@@ -5,7 +5,7 @@ pipeline {
 
         stage('Build Maven') {
             steps {
-                sh 'cd ESD_Backend && mvn clean package -DskipTests'
+                sh 'cd ESD_Backend && mvn clean package -Dmaven.test.skip=true'
             }
         }
 
