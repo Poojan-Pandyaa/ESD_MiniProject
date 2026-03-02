@@ -39,25 +39,13 @@ public class SecurityConfig implements WebMvcConfigurer {
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http
                                 .csrf(csrf -> csrf.disable())
-                                .cors(cors -> {
-                                }) // Use CORS configuration from addCorsMappings
-                                .sessionManagement(session -> session
-                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers("/api/v1/auth/**", "/api/auth/**", "/employee/",
-                                                                "/employee",
-                                                                "/oauth2/**", "/login/oauth2/**", "/v3/api-docs/**",
-                                                                "/swagger-ui/**", "/swagger-ui.html")
-                                                .permitAll()
-                                                .anyRequest().authenticated())
-                                .oauth2Login(oauth2 -> oauth2.userInfoEndpoint(userInfo -> userInfo
-                                                        .userService(customOAuth2UserService))
-                                                .successHandler(oAuth2LoginSuccessHandler)
-                                                .failureHandler(oAuth2LoginFailureHandler))
-                                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .anyRequest().permitAll()
+        )
+        .sessionManagement(session -> session.disable());
 
-                return http.build();
-        }
+    return http.build();
+}
 
         @Override
         public void addCorsMappings(CorsRegistry registry) {

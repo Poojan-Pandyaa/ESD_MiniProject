@@ -230,7 +230,6 @@ public class Student {
         private Domains domain;
         private Specialisation specialisation;
         private Placement placement;
-        private Placement placement;
         private String photoPath;
         private Double ctc;
 
