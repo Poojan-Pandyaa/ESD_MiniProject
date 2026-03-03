@@ -1,33 +1,69 @@
-# ESD Mini Project
+# 🚀 ESD Mini Project – Placement History Viewer
 
-This repository contains a complete **Placement History Viewer**, including a **Java Spring Boot** backend and a **React**-based frontend.
+This repository contains a complete **Placement History Viewer**, including a **Java Spring Boot backend** and a **React-based frontend**.
 
-## 📂 Folder Structure
+The project demonstrates both:
 
-### 1. *backend* (Spring Boot)
-- Built with **Java Spring Boot**.
-- Handles all the business logic, API endpoints, and database connectivity.
-- Includes:
-  - Configuration files.
-  - Controllers, Services, and Repositories for placement management.
+* ✅ Full-stack application development
+* ✅ Production-style containerized deployment with CI/CD automation
 
-### 2. *resources* (SQL Scripts)
-- Contains the SQL files required to set up the database:
-  - `create_table.sql`: Script to create necessary tables.
-  - `alter_table.sql`: Script to alter existing tables (if needed).
-  - `insert_data.sql`: Script to populate tables with sample data.
+---
 
-### 3. *frontend* (React)
-- Built with **React**.
-- Provides a user interface for interacting with the backend API.
-- Includes components for managing placements, students, and search filters.
+# 📂 Project Structure
 
-## 🚀 Setup Instructions
+```
+ESD_MiniProject/
+│
+├── ESD_Backend/        # Spring Boot backend
+├── ESD_Frontend/       # React frontend
+├── resources/          # SQL scripts
+└── Jenkinsfile         # CI/CD pipeline definition
+```
 
-### Backend (Spring Boot)
+---
 
-#### Prerequisites
-Ensure the following environment variables are set before running the backend:
+# 🖥 Application Overview
+
+## 1️⃣ Backend (Spring Boot)
+
+* Built with **Java 17 + Spring Boot**
+* Handles business logic, API endpoints, and database connectivity
+* Implements:
+
+  * Controllers
+  * Services
+  * Repositories
+  * Google OAuth2 Authentication
+  * Role-Based Access Control (RBAC)
+
+---
+
+## 2️⃣ Frontend (React)
+
+* Built with **React**
+* Provides UI for:
+
+  * Placement history viewing
+  * Sorting and filtering
+  * Role-based dashboard access
+
+---
+
+## 3️⃣ Database (MySQL)
+
+SQL scripts available in `/resources`:
+
+* `create_table.sql`
+* `alter_table.sql`
+* `insert_data.sql`
+
+---
+
+# 🚀 Local Development Setup (Without Docker)
+
+## Backend
+
+### Environment Configuration
 
 ```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/placement_db
@@ -40,87 +76,184 @@ spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.format_sql=true
 ```
 
-#### Steps to Run the Backend
-1. Navigate to the *backend* folder:
-   ```bash
-   cd backend
-   ```
+### Run Backend
 
-2. Build and run the backend using Maven:
-   ```bash
-   mvn clean install
-   mvn spring-boot:run
-   ```
-
-3. Ensure the database is running and accessible. Update the environment variables with your database connection details.
+```bash
+cd backend
+mvn clean install
+mvn spring-boot:run
+```
 
 ---
 
-### SQL Database
-1. Set up the database using the provided SQL scripts:
-   ```bash
-   mysql -u <username> -p < database_name> < resources/create_table.sql
-   mysql -u <username> -p < database_name> < resources/alter_table.sql
-   mysql -u <username> -p < database_name> < resources/insert_data.sql
-   ```
+## Frontend
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+Access:
+
+```
+http://localhost:3000
+```
 
 ---
 
-### Frontend (React)
-1. Navigate to the *frontend* folder:
-   ```bash
-   cd frontend
-   ```
+# 🛠 Technologies Used
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+### Application
 
-3. Run the development server:
-   ```bash
-   npm start
-   ```
+* Java Spring Boot
+* React
+* MySQL
+* Google OAuth 2.0
 
-4. Open your browser and navigate to:
-   ```
-   http://localhost:3000
-   ```
+### DevOps & Infrastructure
+
+* Docker
+* Docker Compose
+* Nginx (Reverse Proxy)
+* Jenkins (CI/CD)
+* GitHub Webhooks
+* Ubuntu Linux
+* SSH Jumpbox Access
 
 ---
 
-## 🛠️ Technologies Used
-- **Backend**: Java Spring Boot, MySQL.
-- **Frontend**: React, HTML/CSS, JavaScript.
-- **Database**: MySQL (with .sql scripts for setup).
+# 🚀 Production Deployment & DevOps Architecture
+
+This project was extended beyond local development into a **production-style containerized multi-service deployment**.
 
 ---
 
-## 📌 Features
-- **Role-Based Access Control (RBAC)**:
-  - **Placement Coordinators**: Full access to detailed placement records and filtering.
-  - **Students**: Restricted access (Dashboard statistics only).
-- **Google OAuth 2.0 Integration**: Secure login using Google accounts.
-- **Enhanced Sorting & Filtering**:
-  - Sort by Name (A-Z, Z-A) and CTC.
-  - Automatic filtering of unplaced students when sorting by CTC.
-- **View all students**: Comprehensive placement history for placed and unplaced students.
-- **Search and filter**: Based on organization, year, domain, and placement status.
-- **Placement details**: Show all placement history along with alumni currently working in the selected organization.
+## 🏗 Architecture Overview
+
+### Application Flow
+
+```
+Browser (localhost:8081)
+        ↓
+Nginx (Reverse Proxy Container)
+        ├── Serves React Static Build
+        └── Routes /api → Spring Boot (Port 9191)
+                               ↓
+                             MySQL (Port 3306)
+```
+
+### CI/CD Flow
+
+```
+GitHub Push
+     ↓
+Jenkins Pipeline
+     ├── Maven Build (Backend)
+     ├── Docker Image Build
+     ├── Docker Compose Deployment
+     └── Service Restart
+```
 
 ---
 
-## 📄 Environment Variable Details
+# 🐳 Containerized Deployment
 
-| Variable Name                          | Description                           | Default Value                |
-|----------------------------------------|---------------------------------------|------------------------------|
-| SPRING_DATASOURCE_URL                | JDBC URL for the database             | jdbc:mysql://localhost:3306/placement_db |
-| SPRING_DATASOURCE_USERNAME           | Database username                     | poojan              |
-| SPRING_DATASOURCE_PASSWORD           | Database password                     | password             |
-| SPRING_DATASOURCE_DRIVER_CLASS_NAME  | Database driver class name            | com.mysql.cj.jdbc.Driver |
-| SPRING_JPA_HIBERNATE_DDL_AUTO        | Hibernate schema management strategy  | update                    |
-| SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT | Hibernate dialect                   | org.hibernate.dialect.MySQL5Dialect |
-| SPRING_JPA_SHOW_SQL                  | Show SQL queries in logs              | true                      |
-| SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL | Format SQL queries in logs        | true                      |
+The application runs as multi-container architecture:
+
+| Service | Purpose                              |
+| ------- | ------------------------------------ |
+| nginx   | Serves frontend & routes API traffic |
+| backend | Spring Boot REST API                 |
+| mysql   | Database                             |
+| jenkins | CI/CD automation                     |
+
+All services communicate through Docker internal networking.
 
 ---
+
+## ▶ Run Using Docker Compose
+
+```bash
+cd ESD_Backend/docker
+docker compose up --build -d
+```
+
+Access application:
+
+```
+http://localhost:8081
+```
+
+---
+
+# 🔁 CI/CD Pipeline (Jenkins)
+
+Jenkins automates:
+
+1. Checkout from GitHub
+2. Maven build (`mvn clean package`)
+3. Docker image build
+4. Container deployment using Docker Compose
+5. Automatic service restart on commit
+
+This ensures:
+
+* Automated deployments
+* Consistent build environment
+* Reduced manual errors
+* Faster development cycle
+
+---
+
+# 🔐 Authentication & Security
+
+* Google OAuth2 integration
+* Role-Based Access Control (RBAC)
+* Backend not publicly exposed (only accessible via Nginx)
+* Secure deployment on Ubuntu VM
+* SSH jumpbox-controlled access
+
+---
+
+# 📌 Features
+
+* Placement history tracking
+* Role-based dashboards
+* Sorting by Name & CTC
+* Organization/year/domain filtering
+* Google OAuth login
+* Alumni visibility by organization
+* Student vs Coordinator access separation
+
+---
+
+# 🧠 DevOps Concepts Demonstrated
+
+* Multi-container orchestration
+* Reverse proxy configuration
+* Internal Docker networking
+* CI/CD automation
+* Environment variable management
+* Service health checks
+* Secure VM deployment
+* OAuth integration in containerized setup
+
+---
+
+# 📈 Why This Project Is Significant
+
+Unlike a basic CRUD deployment, this project demonstrates:
+
+* Full-stack system design
+* Production-ready reverse proxy setup
+* Automated CI/CD pipeline
+* Secure remote deployment architecture
+* Container-based infrastructure management
+
+---
+
+# 👨‍💻 Author
+
+Poojan Pandya
+Full-Stack Developer | DevOps Enthusiast
